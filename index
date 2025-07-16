@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Harian Guru</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .calendar-day {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        .calendar-day:hover {
+            background-color: #e0f2fe;
+        }
+        .calendar-day.active {
+            background-color: #0ea5e9;
+            color: white;
+        }
+        .calendar-day.has-entry {
+            border: 2px solid #0ea5e9;
+        }
+        .tab-active {
+            color: #0ea5e9;
+            border-bottom: 2px solid #0ea5e9;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="authContainer" class="min-h-screen flex items-center justify-center bg-gray-100">
+        <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+            <div id="loginForm">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Login Jurnal Guru</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="loginEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="loginEmail" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" autocomplete="email">
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="loginPassword" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" autocomplete="current-password">
+                    </div>
+                    <button id="loginBtn" class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition">Login</button>
+                </div>
+                <p class="text-center text-sm text-gray-600 mt-6">
+                    Belum punya akun? <a href="#" id="showRegister" class="font-medium text-blue-600 hover:text-blue-800">Daftar di sini</a>
+                </p>
+            </div>
+            <div id="registerForm" class="hidden">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Daftar Akun Baru</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="registerName" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                        <input type="text" id="registerName" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" autocomplete="name">
+                    </div>
+                    <div>
+                        <label for="registerEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="registerEmail" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" autocomplete="email">
+                    </div>
+                    <div>
+                        <label for="registerPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="registerPassword" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" autocomplete="new-password">
+                    </div>
+                    <button id="registerBtn" class="w-full py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition">Daftar</button>
+                </div>
+                <p class="text-center text-sm text-gray-600 mt-6">
+                    Sudah punya akun? <a href="#" id="showLogin" class="font-medium text-blue-600 hover:text-blue-800">Login di sini</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="appContainer" class="hidden">
+        <div class="min-h-screen flex flex-col">
+            <header class="bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg">
+                <div class="container mx-auto px-4 py-4">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-2xl font-bold">Jurnal Harian Guru</h1>
+                        <div class="flex items-center space-x-3">
+                            <button id="notificationBtn" class="p-2 rounded-full hover:bg-blue-700 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                            </button>
+                            <button id="profileBtn" class="w-10 h-10 rounded-full bg-white text-blue-600 font-bold flex items-center justify-center" title="Nama Guru">
+                                GR
+                            </button>
+                            <button id="signOutBtn" class="p-2 rounded-full hover:bg-blue-700 transition" title="Sign Out">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-grow container mx-auto px-4 py-6">
+                <div id="dashboard" class="block">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-2 space-y-6">
+                            <div class="bg-white rounded-xl shadow-md p-6">
+                                <h2 class="text-xl font-semibold text-gray-800 mb-4">Entri Cepat</h2>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                        <input type="date" id="quickDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                                        <select id="quickClass" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="">Pilih Kelas</option>
+                                            <option value="7A">7A</option>
+                                            <option value="7B">7B</option>
+                                            <option value="8A">8A</option>
+                                            <option value="8B">8B</option>
+                                            <option value="9A">9A</option>
+                                            <option value="9B">9B</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran</label>
+                                        <select id="quickSubject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="">Pilih Mata Pelajaran</option>
+                                            <option value="Matematika">Matematika</option>
+                                            <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                            <option value="IPA">IPA</option>
+                                            <option value="IPS">IPS</option>
+                                            <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Kegiatan Pembelajaran</label>
+                                        <textarea id="quickActivity" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Deskripsi kegiatan pembelajaran..."></textarea>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button id="quickSaveBtn" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition shadow-md">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl shadow-md p-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h2 class="text-xl font-semibold text-gray-800">Entri Terbaru</h2>
+                                    <button id="viewAllBtn" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Lihat Semua</button>
+                                </div>
+                                <div id="recentEntries" class="space-y-4">
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-xl shadow-md p-6">
+                                <h2 class="text-xl font-semibold text-gray-800 mb-4">Kalender</h2>
+                                <div class="text-center">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <button id="prevMonth" class="p-1 rounded-full hover:bg-gray-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                        </button>
+                                        <h3 id="currentMonth" class="text-lg font-medium"></h3>
+                                        <button id="nextMonth" class="p-1 rounded-full hover:bg-gray-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-7 gap-1 text-sm font-medium text-gray-500 mb-2">
+                                        <div>Min</div>
+                                        <div>Sen</div>
+                                        <div>Sel</div>
+                                        <div>Rab</div>
+                                        <div>Kam</div>
+                                        <div>Jum</div>
+                                        <div>Sab</div>
+                                    </div>
+                                    <div id="calendarDays" class="grid grid-cols-7 gap-1">
+                                        </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl shadow-md p-6">
+                                <h2 class="text-xl font-semibold text-gray-800 mb-4">Statistik</h2>
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Total Entri</span>
+                                        <span id="totalEntries" class="font-semibold">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Entri Minggu Ini</span>
+                                        <span id="weekEntries" class="font-semibold">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Kelas Terbanyak</span>
+                                        <span id="topClass" class="font-semibold">-</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Mata Pelajaran Terbanyak</span>
+                                        <span id="topSubject" class="font-semibold">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl shadow-md p-6">
+                                <h2 class="text-xl font-semibold text-gray-800 mb-4">Menu Cepat</h2>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button id="newEntryBtn" class="flex flex-col items-center justify-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        <span class="text-sm font-medium">Entri Baru</span>
+                                    </button>
+                                    <button id="attendanceBtn" class="flex flex-col items-center justify-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        <span class="text-sm font-medium">Absensi</span>
+                                    </button>
+                                    <button id="reportsBtn" class="flex flex-col items-center justify-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <span class="text-sm font-medium">Laporan</span>
+                                    </button>
+                                    <button id="settingsBtn" class="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <span class="text-sm font-medium">Pengaturan</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="entryDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-semibold text-gray-800">Detail Jurnal</h2>
+                                <button id="closeDetailModal" class="text-gray-500 hover:text-gray-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <span class="text-sm text-gray-500">Tanggal</span>
+                                    <p id="detailDate" class="font-medium"></p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-500">Kelas</span>
+                                    <p id="detailClass" class="font-medium"></p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-500">Mata Pelajaran</span>
+                                    <p id="detailSubject" class="font-medium"></p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-500">Kegiatan Pembelajaran</span>
+                                    <p id="detailActivity" class="text-gray-800"></p>
+                                </div>
+                                <div class="pt-4 flex justify-end space-x-3">
+                                    <button id="editEntryBtn" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Edit</button>
+                                    <button id="deleteEntryBtn" class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">Hapus</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="editEntryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-semibold text-gray-800">Edit Jurnal</h2>
+                                <button id="closeEditModal" class="text-gray-500 hover:text-gray-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <input type="hidden" id="editEntryId">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                    <input type="date" id="editDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                                    <select id="editClass" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Pilih Kelas</option>
+                                        <option value="7A">7A</option>
+                                        <option value="7B">7B</option>
+                                        <option value="8A">8A</option>
+                                        <option value="8B">8B</option>
+                                        <option value="9A">9A</option>
+                                        <option value="9B">9B</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran</label>
+                                    <select id="editSubject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Pilih Mata Pelajaran</option>
+                                        <option value="Matematika">Matematika</option>
+                                        <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                        <option value="IPA">IPA</option>
+                                        <option value="IPS">IPS</option>
+                                        <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kegiatan Pembelajaran</label>
+                                    <textarea id="editActivity" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                </div>
+                                <div class="pt-4 flex justify-end">
+                                    <button id="updateEntryBtn" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Simpan Perubahan</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="allEntriesView" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Semua Entri Jurnal</h2>
+                        <button id="backToDashboard" class="flex items-center text-blue-600 hover:text-blue-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Kembali
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Filter</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
+                                <input type="date" id="filterFromDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
+                                <input type="date" id="filterToDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                                <select id="filterClass" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Semua Kelas</option>
+                                    <option value="7A">7A</option>
+                                    <option value="7B">7B</option>
+                                    <option value="8A">8A</option>
+                                    <option value="8B">8B</option>
+                                    <option value="9A">9A</option>
+                                    <option value="9B">9B</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran</label>
+                                <select id="filterSubject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Semua Mata Pelajaran</option>
+                                    <option value="Matematika">Matematika</option>
+                                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                    <option value="IPA">IPA</option>
+                                    <option value="IPS">IPS</option>
+                                    <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <button id="applyFilterBtn" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Terapkan Filter</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mata Pelajaran</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kegiatan</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="entriesTableBody" class="bg-white divide-y divide-gray-200">
+                                    </tbody>
+                            </table>
+                        </div>
+                        <div id="noEntriesMessage" class="py-8 text-center text-gray-500 hidden">
+                            Tidak ada entri jurnal yang ditemukan.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="attendanceView" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Absensi Siswa</h2>
+                        <button id="backToDashboardFromAttendance" class="flex items-center text-blue-600 hover:text-blue-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Kembali
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                        <div class="flex border-b">
+                            <button id="newAttendanceTab" class="px-4 py-2 font-medium tab-active">Absensi Baru</button>
+                            <button id="attendanceHistoryTab" class="px-4 py-2 font-medium">Riwayat Absensi</button>
+                        </div>
+
+                        <div id="newAttendanceForm" class="pt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                    <input type="date" id="attendanceDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                                    <select id="attendanceClass" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Pilih Kelas</option>
+                                        <option value="7A">7A</option>
+                                        <option value="7B">7B</option>
+                                        <option value="8A">8A</option>
+                                        <option value="8B">8B</option>
+                                        <option value="9A">9A</option>
+                                        <option value="9B">9B</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran</label>
+                                    <select id="attendanceSubject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Pilih Mata Pelajaran</option>
+                                        <option value="Matematika">Matematika</option>
+                                        <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                        <option value="IPA">IPA</option>
+                                        <option value="IPS">IPS</option>
+                                        <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <button id="loadStudentsBtn" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Muat Daftar Siswa</button>
+                            </div>
+
+                            <div id="studentListContainer" class="hidden">
+                                <div class="mb-4 flex justify-between items-center">
+                                    <h3 class="text-lg font-semibold text-gray-800">Daftar Siswa</h3>
+                                    <div class="flex space-x-2">
+                                        <button id="markAllPresentBtn" class="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded hover:bg-green-200 transition">Semua Hadir</button>
+                                        <button id="markAllAbsentBtn" class="px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded hover:bg-red-200 transition">Semua Tidak Hadir</button>
+                                    </div>
+                                </div>
+
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Siswa</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="studentListBody" class="bg-white divide-y divide-gray-200">
+                                            </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="mt-4 flex justify-end">
+                                    <button id="saveAttendanceBtn" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Simpan Absensi</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="attendanceHistoryContent" class="pt-4 hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
+                                    <input type="date" id="attendanceFilterFromDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
+                                    <input type="date" id="attendanceFilterToDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                                    <select id="attendanceFilterClass" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Semua Kelas</option>
+                                        <option value="7A">7A</option>
+                                        <option value="7B">7B</option>
+                                        <option value="8A">8A</option>
+                                        <option value="8B">8B</option>
+                                        <option value="9A">9A</option>
+                                        <option value="9B">9B</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-4 flex justify-end">
+                                <button id="applyAttendanceFilterBtn" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Terapkan Filter</button>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mata Pelajaran</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hadir</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tidak Hadir</th>
+                                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attendanceHistoryBody" class="bg-white divide-y divide-gray-200">
+                                        </tbody>
+                                </table>
+                            </div>
+                            <div id="noAttendanceMessage" class="py-8 text-center text-gray-500 hidden">
+                                Tidak ada data absensi yang ditemukan.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="attendanceDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-semibold text-gray-800">Detail Absensi</h2>
+                                <button id="closeAttendanceDetailModal" class="text-gray-500 hover:text-gray-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <span class="text-sm text-gray-500">Tanggal</span>
+                                        <p id="attendanceDetailDate" class="font-medium"></p>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-gray-500">Kelas</span>
+                                        <p id="attendanceDetailClass" class="font-medium"></p>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-gray-500">Mata Pelajaran</span>
+                                        <p id="attendanceDetailSubject" class="font-medium"></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Siswa</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="attendanceDetailBody" class="bg-white divide-y divide-gray-200">
+                                            </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="pt-4 flex justify-end space-x-3">
+                                    <button id="editAttendanceBtn" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Edit</button>
+                                    <button id="deleteAttendanceBtn" class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">Hapus</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="bg-gray-800 text-white py-4">
+                <div class="container mx-auto px-4 text-center text-sm">
+                    <p>&copy; 2025 Jurnal Harian Guru. Semua hak dilindungi.</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // =================================================================
+            // VARIABEL GLOBAL & KONFIGURASI
+            // =================================================================
+            const SCRIPT_URL = 'PASTE_URL_WEB_APP_ANDA_DI_SINI';
+            
+            let currentUser = null; // Menyimpan data user yang sedang login
+            let journalEntries = [];
+            let attendanceData = [];
+
+            // Sample student data (tetap di frontend untuk kemudahan)
+            const studentsByClass = {
+                '7A': [{ id: '7A-1', name: 'Ahmad Rizki' }, { id: '7A-2', name: 'Budi Santoso' }, { id: '7A-3', name: 'Citra Dewi' }, { id: '7A-4', name: 'Dian Purnama' }, { id: '7A-5', name: 'Eko Prasetyo' }],
+                '7B': [{ id: '7B-1', name: 'Faisal Rahman' }, { id: '7B-2', name: 'Gita Nirmala' }, { id: '7B-3', name: 'Hadi Wijaya' }, { id: '7B-4', name: 'Indah Permata' }, { id: '7B-5', name: 'Joko Susilo' }],
+                '8A': [{ id: '8A-1', name: 'Kartika Sari' }, { id: '8A-2', name: 'Lukman Hakim' }, { id: '8A-3', name: 'Mira Lestari' }, { id: '8A-4', name: 'Nanda Putra' }, { id: '8A-5', name: 'Olivia Putri' }],
+                '8B': [{ id: '8B-1', name: 'Pandu Wibowo' }, { id: '8B-2', name: 'Qori Amalia' }, { id: '8B-3', name: 'Rudi Hartono' }, { id: '8B-4', name: 'Sinta Dewi' }, { id: '8B-5', name: 'Tono Sucipto' }],
+                '9A': [{ id: '9A-1', name: 'Umar Hadi' }, { id: '9A-2', name: 'Vina Anggraini' }, { id: '9A-3', name: 'Wawan Setiawan' }, { id: '9A-4', name: 'Xena Putri' }, { id: '9A-5', name: 'Yudi Pratama' }],
+                '9B': [{ id: '9B-1', name: 'Zahra Rahmawati' }, { id: '9B-2', name: 'Andi Firmansyah' }, { id: '9B-3', name: 'Bella Safitri' }, { id: '9B-4', name: 'Candra Wijaya' }, { id: '9B-5', name: 'Devi Anggraeni' }]
+            };
+
+            // =================================================================
+            // LOGIKA OTENTIKASI & INISIALISASI
+            // =================================================================
+            const authContainer = document.getElementById('authContainer');
+            const appContainer = document.getElementById('appContainer');
+
+            checkSession();
+
+            // Event Listeners untuk form Login/Daftar & Sign Out
+            document.getElementById('showRegister').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            });
+
+            document.getElementById('showLogin').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+            });
+
+            document.getElementById('registerBtn').addEventListener('click', handleRegister);
+            document.getElementById('loginBtn').addEventListener('click', handleLogin);
+            document.getElementById('signOutBtn').addEventListener('click', handleSignOut);
+            
+            // Tambahkan event listener untuk tombol Enter
+            document.getElementById('loginPassword').addEventListener('keyup', function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    document.getElementById("loginBtn").click();
+                }
+            });
+
+            function checkSession() {
+                const user = JSON.parse(sessionStorage.getItem('currentUser'));
+                if (user) {
+                    currentUser = user;
+                    initializeApp();
+                } else {
+                    showAuthView();
+                }
+            }
+
+            async function handleLogin() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                if (!email || !password) {
+                    alert('Email dan password harus diisi.');
+                    return;
+                }
+
+                try {
+                    const response = await apiCall('login', { email, password });
+                    currentUser = response;
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    initializeApp();
+                } catch (error) {
+                    alert('Login Gagal: ' + error.message);
+                }
+            }
+
+            async function handleRegister() {
+                const nama = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                if (!nama || !email || !password) {
+                    alert('Semua field pendaftaran harus diisi.');
+                    return;
+                }
+
+                try {
+                    const response = await apiCall('register', { nama, email, password });
+                    alert(response.message);
+                    document.getElementById('showLogin').click();
+                    document.getElementById('loginEmail').value = email; // Pre-fill email
+                    document.getElementById('registerForm').reset(); // Clear register form
+                } catch (error) {
+                    alert('Pendaftaran Gagal: ' + error.message);
+                }
+            }
+
+            function handleSignOut() {
+                currentUser = null;
+                sessionStorage.removeItem('currentUser');
+                showAuthView();
+            }
+
+            async function initializeApp() {
+                authContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+
+                const profileBtn = document.getElementById('profileBtn');
+                profileBtn.textContent = currentUser.nama.substring(0, 2).toUpperCase();
+                profileBtn.title = currentUser.nama;
+                
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                document.getElementById('quickDate').value = formattedDate;
+                document.getElementById('attendanceDate').value = formattedDate;
+
+                await loadAllData();
+
+                renderRecentEntries();
+                updateStatistics();
+                renderCalendar(today.getFullYear(), today.getMonth());
+            }
+
+            function showAuthView() {
+                authContainer.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+            }
+            
+            async function loadAllData() {
+                try {
+                    const [jData, aData] = await Promise.all([
+                        apiCall('getJournal', { userEmail: currentUser.email }),
+                        apiCall('getAttendance', { userEmail: currentUser.email })
+                    ]);
+                    journalEntries = jData || [];
+                    attendanceData = aData || [];
+                } catch (error) {
+                    alert('Gagal memuat data: ' + error.message);
+                    journalEntries = [];
+                    attendanceData = [];
+                }
+            }
+
+            async function apiCall(action, data = {}) {
+                document.body.style.cursor = 'wait'; // Show loading cursor
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action, data }),
+                        redirect: 'follow'
+                    });
+                    
+                    if (!response.ok) {
+                       throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+
+                    if (result.status === 'error') {
+                        throw new Error(result.message);
+                    }
+                    return result.data;
+                } finally {
+                   document.body.style.cursor = 'default'; // Restore cursor
+                }
+            }
+            
+
+            // =================================================================
+            // EVENT LISTENERS APLIKASI UTAMA
+            // =================================================================
+            document.getElementById('quickSaveBtn').addEventListener('click', saveQuickEntry);
+            document.getElementById('viewAllBtn').addEventListener('click', showAllEntriesView);
+            document.getElementById('backToDashboard').addEventListener('click', showDashboard);
+            document.getElementById('backToDashboardFromAttendance').addEventListener('click', showDashboard);
+            document.getElementById('applyFilterBtn').addEventListener('click', () => renderAllEntries());
+            document.getElementById('prevMonth').addEventListener('click', navigatePrevMonth);
+            document.getElementById('nextMonth').addEventListener('click', navigateNextMonth);
+            document.getElementById('closeDetailModal').addEventListener('click', () => document.getElementById('entryDetailModal').classList.add('hidden'));
+            document.getElementById('closeEditModal').addEventListener('click', () => document.getElementById('editEntryModal').classList.add('hidden'));
+            document.getElementById('updateEntryBtn').addEventListener('click', updateEntry);
+            document.getElementById('newEntryBtn').addEventListener('click', () => document.querySelector('.bg-white.rounded-xl.shadow-md.p-6').scrollIntoView({ behavior: 'smooth' }));
+            document.getElementById('attendanceBtn').addEventListener('click', showAttendanceView);
+            document.getElementById('newAttendanceTab').addEventListener('click', handleAttendanceTab);
+            document.getElementById('attendanceHistoryTab').addEventListener('click', handleAttendanceTab);
+            document.getElementById('loadStudentsBtn').addEventListener('click', () => loadStudentList(document.getElementById('attendanceClass').value));
+            document.getElementById('markAllPresentBtn').addEventListener('click', () => markAllStudents('hadir'));
+            document.getElementById('markAllAbsentBtn').addEventListener('click', () => markAllStudents('tidak_hadir'));
+            document.getElementById('saveAttendanceBtn').addEventListener('click', saveAttendance);
+            document.getElementById('applyAttendanceFilterBtn').addEventListener('click', () => renderAttendanceHistory());
+            document.getElementById('closeAttendanceDetailModal').addEventListener('click', () => document.getElementById('attendanceDetailModal').classList.add('hidden'));
+
+            // =================================================================
+            // FUNGSI-FUNGSI LOGIKA JURNAL
+            // =================================================================
+
+            async function saveQuickEntry() {
+                const date = document.getElementById('quickDate').value;
+                const className = document.getElementById('quickClass').value;
+                const subject = document.getElementById('quickSubject').value;
+                const activity = document.getElementById('quickActivity').value;
+
+                if (!date || !className || !subject || !activity) {
+                    alert('Mohon lengkapi semua field!');
+                    return;
+                }
+
+                const newEntry = {
+                    userEmail: currentUser.email,
+                    date: date,
+                    class: className,
+                    subject: subject,
+                    activity: activity
+                };
+
+                try {
+                    await apiCall('saveJournal', newEntry);
+                    await loadAllData();
+
+                    document.getElementById('quickClass').value = '';
+                    document.getElementById('quickSubject').value = '';
+                    document.getElementById('quickActivity').value = '';
+                    renderRecentEntries();
+                    updateStatistics();
+                    renderCalendar(new Date(date).getFullYear(), new Date(date).getMonth());
+                    alert('Jurnal berhasil disimpan!');
+                } catch (error) {
+                    alert('Gagal menyimpan jurnal: ' + error.message);
+                }
+            }
+            
+            async function updateEntry() {
+                const entryId = document.getElementById('editEntryId').value;
+                const date = document.getElementById('editDate').value;
+                const className = document.getElementById('editClass').value;
+                const subject = document.getElementById('editSubject').value;
+                const activity = document.getElementById('editActivity').value;
+
+                if (!date || !className || !subject || !activity) {
+                    alert('Mohon lengkapi semua field!');
+                    return;
+                }
+
+                const updatedEntry = {
+                    id: entryId,
+                    userEmail: currentUser.email,
+                    date: date,
+                    class: className,
+                    subject: subject,
+                    activity: activity
+                };
+
+                try {
+                    await apiCall('saveJournal', updatedEntry);
+                    await loadAllData();
+
+                    document.getElementById('editEntryModal').classList.add('hidden');
+                    if (!document.getElementById('allEntriesView').classList.contains('hidden')) {
+                        renderAllEntries();
+                    } else {
+                        renderRecentEntries();
+                    }
+                    updateStatistics();
+                    renderCalendar(new Date().getFullYear(), new Date().getMonth());
+                    alert('Jurnal berhasil diperbarui!');
+                } catch (error) {
+                    alert('Gagal memperbarui jurnal: ' + error.message);
+                }
+            }
+            
+            async function deleteEntry(entryId) {
+                 if (!confirm('Apakah Anda yakin ingin menghapus entri ini?')) return;
+                try {
+                    await apiCall('deleteJournal', { entryId, userEmail: currentUser.email });
+                    await loadAllData();
+
+                    document.getElementById('entryDetailModal').classList.add('hidden');
+                    if (!document.getElementById('allEntriesView').classList.contains('hidden')) {
+                        renderAllEntries();
+                    } else {
+                        renderRecentEntries();
+                    }
+                    updateStatistics();
+                    renderCalendar(new Date().getFullYear(), new Date().getMonth());
+                    alert('Jurnal berhasil dihapus!');
+                } catch (error) {
+                    alert('Gagal menghapus jurnal: ' + error.message);
+                }
+            }
+
+
+            // =================================================================
+            // FUNGSI-FUNGSI LOGIKA ABSENSI
+            // =================================================================
+
+            function markAllStudents(status) {
+                document.querySelectorAll('.student-status').forEach(select => {
+                    select.value = status;
+                });
+            }
+            
+            async function saveAttendance() {
+                const date = document.getElementById('attendanceDate').value;
+                const className = document.getElementById('attendanceClass').value;
+                const subject = document.getElementById('attendanceSubject').value;
+
+                if (!date || !className || !subject) {
+                    alert('Mohon lengkapi semua field!');
+                    return;
+                }
+
+                const students = [];
+                document.querySelectorAll('#studentListBody tr').forEach(row => {
+                    students.push({
+                        id: row.getAttribute('data-student-id'),
+                        name: row.querySelector('.student-name').textContent,
+                        status: row.querySelector('.student-status').value,
+                        note: row.querySelector('.student-note').value
+                    });
+                });
+                
+                const newAttendance = {
+                    userEmail: currentUser.email,
+                    date,
+                    class: className,
+                    subject,
+                    students
+                };
+
+                try {
+                    await apiCall('saveAttendance', newAttendance);
+                    await loadAllData();
+
+                    document.getElementById('attendanceClass').value = '';
+                    document.getElementById('attendanceSubject').value = '';
+                    document.getElementById('studentListContainer').classList.add('hidden');
+                    alert('Absensi berhasil disimpan!');
+                    document.getElementById('attendanceHistoryTab').click();
+                } catch(error) {
+                    alert('Gagal menyimpan absensi: ' + error.message);
+                }
+            }
+            
+            async function deleteAttendance(attendanceId) {
+                if (!confirm('Apakah Anda yakin ingin menghapus data absensi ini?')) return;
+                try {
+                    await apiCall('deleteAttendance', { attendanceId, userEmail: currentUser.email });
+                    await loadAllData();
+                    document.getElementById('attendanceDetailModal').classList.add('hidden');
+                    renderAttendanceHistory();
+                    alert('Data absensi berhasil dihapus!');
+                } catch(error) {
+                    alert('Gagal menghapus absensi: ' + error.message);
+                }
+            }
+
+
+            // =================================================================
+            // FUNGSI-FUNGSI RENDER TAMPILAN
+            // =================================================================
+            function showDashboard() {
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.getElementById('allEntriesView').classList.add('hidden');
+                document.getElementById('attendanceView').classList.add('hidden');
+                renderRecentEntries(); // Refresh recent entries on return
+            }
+
+            function showAllEntriesView() {
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('allEntriesView').classList.remove('hidden');
+                document.getElementById('attendanceView').classList.add('hidden');
+                renderAllEntries();
+            }
+            
+            function showAttendanceView() {
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('allEntriesView').classList.add('hidden');
+                document.getElementById('attendanceView').classList.remove('hidden');
+                document.getElementById('newAttendanceTab').click();
+            }
+
+            function renderRecentEntries() {
+                const recentEntriesContainer = document.getElementById('recentEntries');
+                recentEntriesContainer.innerHTML = '';
+                const sortedEntries = [...journalEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
+                const recentEntries = sortedEntries.slice(0, 5);
+
+                if (recentEntries.length === 0) {
+                    recentEntriesContainer.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada entri jurnal.</p>';
+                    return;
+                }
+
+                recentEntries.forEach(entry => {
+                    const entryElement = document.createElement('div');
+                    entryElement.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition cursor-pointer';
+                    entryElement.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-medium">${formatDate(entry.date)} - ${entry.class}</h4>
+                                <p class="text-sm text-gray-600">${entry.subject}</p>
+                            </div>
+                            <span class="text-xs text-white bg-blue-500 px-2 py-1 rounded-full">${entry.class}</span>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-700 line-clamp-2">${entry.activity}</p>`;
+                    entryElement.addEventListener('click', () => showEntryDetail(entry));
+                    recentEntriesContainer.appendChild(entryElement);
+                });
+            }
+            
+            function renderAllEntries() {
+                const tableBody = document.getElementById('entriesTableBody');
+                const noEntriesMessage = document.getElementById('noEntriesMessage');
+                tableBody.innerHTML = '';
+
+                const fromDate = document.getElementById('filterFromDate').value;
+                const toDate = document.getElementById('filterToDate').value;
+                const filterClass = document.getElementById('filterClass').value;
+                const filterSubject = document.getElementById('filterSubject').value;
+
+                let filteredEntries = [...journalEntries]
+                    .filter(entry => !fromDate || entry.date >= fromDate)
+                    .filter(entry => !toDate || entry.date <= toDate)
+                    .filter(entry => !filterClass || entry.class === filterClass)
+                    .filter(entry => !filterSubject || entry.subject === filterSubject)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                if (filteredEntries.length === 0) {
+                    noEntriesMessage.classList.remove('hidden');
+                    return;
+                }
+
+                noEntriesMessage.classList.add('hidden');
+                filteredEntries.forEach(entry => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-900">${formatDate(entry.date)}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-900">${entry.class}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-900">${entry.subject}</div></td>
+                        <td class="px-6 py-4"><div class="text-sm text-gray-900 line-clamp-2">${entry.activity}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button class="text-blue-600 hover:text-blue-900 mr-3">Lihat</button>
+                            <button class="text-red-600 hover:text-red-900">Hapus</button>
+                        </td>`;
+                    row.querySelector('.text-blue-600').addEventListener('click', () => showEntryDetail(entry));
+                    row.querySelector('.text-red-600').addEventListener('click', () => deleteEntry(entry.id));
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            function renderAttendanceHistory() {
+                const tableBody = document.getElementById('attendanceHistoryBody');
+                const noAttendanceMessage = document.getElementById('noAttendanceMessage');
+                tableBody.innerHTML = '';
+
+                const fromDate = document.getElementById('attendanceFilterFromDate').value;
+                const toDate = document.getElementById('attendanceFilterToDate').value;
+                const filterClass = document.getElementById('attendanceFilterClass').value;
+                
+                let filteredAttendance = [...attendanceData]
+                    .filter(att => !fromDate || att.date >= fromDate)
+                    .filter(att => !toDate || att.date <= toDate)
+                    .filter(att => !filterClass || att.class === filterClass)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                if (filteredAttendance.length === 0) {
+                    noAttendanceMessage.classList.remove('hidden');
+                    return;
+                }
+                
+                noAttendanceMessage.classList.add('hidden');
+                filteredAttendance.forEach(attendance => {
+                    const presentCount = attendance.students.filter(s => s.status === 'hadir').length;
+                    const absentCount = attendance.students.length - presentCount;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-900">${formatDate(attendance.date)}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-900">${attendance.class}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-900">${attendance.subject}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-green-600 font-medium">${presentCount}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-red-600 font-medium">${absentCount}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button class="text-blue-600 hover:text-blue-900 mr-3">Lihat</button>
+                            <button class="text-red-600 hover:text-red-900">Hapus</button>
+                        </td>`;
+                    row.querySelector('.text-blue-600').addEventListener('click', () => showAttendanceDetail(attendance));
+                    row.querySelector('.text-red-600').addEventListener('click', () => deleteAttendance(attendance.id));
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            function renderCalendar(year, month) {
+                const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const firstDayOfMonth = new Date(year, month, 1).getDay();
+                
+                document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+                const calendarDays = document.getElementById('calendarDays');
+                calendarDays.innerHTML = '';
+
+                for (let i = 0; i < firstDayOfMonth; i++) {
+                    calendarDays.appendChild(document.createElement('div'));
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'calendar-day';
+                    dayElement.textContent = day;
+                    const currentDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    
+                    if (journalEntries.some(entry => entry.date === currentDateStr)) {
+                        dayElement.classList.add('has-entry');
+                    }
+                    const today = new Date();
+                    if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                        dayElement.classList.add('active');
+                    }
+                    dayElement.addEventListener('click', () => {
+                         if (dayElement.classList.contains('has-entry')) {
+                            showAllEntriesView();
+                            document.getElementById('filterFromDate').value = currentDateStr;
+                            document.getElementById('filterToDate').value = currentDateStr;
+                            renderAllEntries();
+                         }
+                    });
+                    calendarDays.appendChild(dayElement);
+                }
+            }
+            
+            function loadStudentList(className) {
+                const students = studentsByClass[className] || [];
+                const studentListBody = document.getElementById('studentListBody');
+                studentListBody.innerHTML = '';
+                if (students.length === 0) {
+                    alert('Tidak ada data siswa untuk kelas ini.');
+                    return;
+                }
+
+                students.forEach((student, index) => {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-student-id', student.id);
+                    row.innerHTML = `
+                        <td class="px-6 py-4"><div class="text-sm text-gray-900">${index + 1}</div></td>
+                        <td class="px-6 py-4"><div class="text-sm text-gray-900 student-name">${student.name}</div></td>
+                        <td class="px-6 py-4">
+                            <select class="student-status px-3 py-2 border border-gray-300 rounded-md">
+                                <option value="hadir">Hadir</option>
+                                <option value="tidak_hadir">Tidak Hadir</option>
+                                <option value="izin">Izin</option>
+                                <option value="sakit">Sakit</option>
+                            </select>
+                        </td>
+                        <td class="px-6 py-4"><input type="text" class="student-note px-3 py-2 border border-gray-300 rounded-md w-full" placeholder="Keterangan..."></td>`;
+                    studentListBody.appendChild(row);
+                });
+                document.getElementById('studentListContainer').classList.remove('hidden');
+            }
+            
+            // =================================================================
+            // FUNGSI-FUNGSI MODAL & DETAIL
+            // =================================================================
+            function showEntryDetail(entry) {
+                document.getElementById('detailDate').textContent = formatDate(entry.date);
+                document.getElementById('detailClass').textContent = entry.class;
+                document.getElementById('detailSubject').textContent = entry.subject;
+                document.getElementById('detailActivity').textContent = entry.activity;
+                
+                document.getElementById('editEntryBtn').onclick = () => {
+                    document.getElementById('editEntryId').value = entry.id;
+                    document.getElementById('editDate').value = entry.date;
+                    document.getElementById('editClass').value = entry.class;
+                    document.getElementById('editSubject').value = entry.subject;
+                    document.getElementById('editActivity').value = entry.activity;
+                    document.getElementById('entryDetailModal').classList.add('hidden');
+                    document.getElementById('editEntryModal').classList.remove('hidden');
+                };
+                document.getElementById('deleteEntryBtn').onclick = () => deleteEntry(entry.id);
+                document.getElementById('entryDetailModal').classList.remove('hidden');
+            }
+            
+            function showAttendanceDetail(attendance) {
+                document.getElementById('attendanceDetailDate').textContent = formatDate(attendance.date);
+                document.getElementById('attendanceDetailClass').textContent = attendance.class;
+                document.getElementById('attendanceDetailSubject').textContent = attendance.subject;
+                
+                const detailBody = document.getElementById('attendanceDetailBody');
+                detailBody.innerHTML = '';
+                attendance.students.forEach((student, index) => {
+                    let statusMap = {'hadir': 'Hadir', 'tidak_hadir': 'Tidak Hadir', 'izin': 'Izin', 'sakit': 'Sakit'};
+                    let classMap = {'hadir': 'text-green-600', 'tidak_hadir': 'text-red-600', 'izin': 'text-yellow-600', 'sakit': 'text-orange-600'};
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4"><div class="text-sm text-gray-900">${index + 1}</div></td>
+                        <td class="px-6 py-4"><div class="text-sm text-gray-900">${student.name}</div></td>
+                        <td class="px-6 py-4"><div class="text-sm font-medium ${classMap[student.status] || ''}">${statusMap[student.status] || ''}</div></td>
+                        <td class="px-6 py-4"><div class="text-sm text-gray-900">${student.note || '-'}</div></td>
+                    `;
+                    detailBody.appendChild(row);
+                });
+                
+                document.getElementById('deleteAttendanceBtn').onclick = () => deleteAttendance(attendance.id);
+                // Edit attendance is complex, for simplicity we delete and recreate
+                document.getElementById('editAttendanceBtn').onclick = async () => {
+                    if (confirm('Mengedit akan menghapus data lama dan membuat form baru dengan data ini. Lanjutkan?')) {
+                        await deleteAttendance(attendance.id); // delete the old one
+                        showAttendanceView();
+                        document.getElementById('attendanceDate').value = attendance.date;
+                        document.getElementById('attendanceClass').value = attendance.class;
+                        document.getElementById('attendanceSubject').value = attendance.subject;
+                        loadStudentList(attendance.class);
+                        setTimeout(() => { // wait for list to render
+                             document.querySelectorAll('#studentListBody tr').forEach(row => {
+                                const studentData = attendance.students.find(s => s.id === row.dataset.studentId);
+                                if (studentData) {
+                                    row.querySelector('.student-status').value = studentData.status;
+                                    row.querySelector('.student-note').value = studentData.note || '';
+                                }
+                            });
+                        }, 200);
+                    }
+                };
+
+                document.getElementById('attendanceDetailModal').classList.remove('hidden');
+            }
+
+            // =================================================================
+            // FUNGSI-FUNGSI HELPERS & NAVIGASI
+            // =================================================================
+            function updateStatistics() {
+                document.getElementById('totalEntries').textContent = journalEntries.length;
+                const startOfWeek = new Date();
+                startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+                startOfWeek.setHours(0, 0, 0, 0);
+                document.getElementById('weekEntries').textContent = journalEntries.filter(e => new Date(e.date) >= startOfWeek).length;
+
+                const classCounts = journalEntries.reduce((acc, e) => ({...acc, [e.class]: (acc[e.class] || 0) + 1 }), {});
+                document.getElementById('topClass').textContent = Object.keys(classCounts).length > 0 ? Object.keys(classCounts).reduce((a, b) => classCounts[a] > classCounts[b] ? a : b) : '-';
+                
+                const subjectCounts = journalEntries.reduce((acc, e) => ({...acc, [e.subject]: (acc[e.subject] || 0) + 1 }), {});
+                document.getElementById('topSubject').textContent = Object.keys(subjectCounts).length > 0 ? Object.keys(subjectCounts).reduce((a, b) => subjectCounts[a] > subjectCounts[b] ? a : b) : '-';
+            }
+
+            function navigatePrevMonth() {
+                const [month, year] = document.getElementById('currentMonth').textContent.split(' ');
+                let newMonth = getMonthIndex(month) - 1;
+                let newYear = parseInt(year);
+                if (newMonth < 0) { newMonth = 11; newYear--; }
+                renderCalendar(newYear, newMonth);
+            }
+
+            function navigateNextMonth() {
+                const [month, year] = document.getElementById('currentMonth').textContent.split(' ');
+                let newMonth = getMonthIndex(month) + 1;
+                let newYear = parseInt(year);
+                if (newMonth > 11) { newMonth = 0; newYear++; }
+                renderCalendar(newYear, newMonth);
+            }
+            
+            function handleAttendanceTab(e) {
+                const newTab = document.getElementById('newAttendanceTab');
+                const historyTab = document.getElementById('attendanceHistoryTab');
+                const newForm = document.getElementById('newAttendanceForm');
+                const historyContent = document.getElementById('attendanceHistoryContent');
+                
+                if (e.target.id === 'newAttendanceTab') {
+                    newTab.classList.add('tab-active');
+                    historyTab.classList.remove('tab-active');
+                    newForm.classList.remove('hidden');
+                    historyContent.classList.add('hidden');
+                } else {
+                    historyTab.classList.add('tab-active');
+                    newTab.classList.remove('tab-active');
+                    historyContent.classList.remove('hidden');
+                    newForm.classList.add('hidden');
+                    renderAttendanceHistory();
+                }
+            }
+            
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                // The date from sheet might be a full ISO string, split to be safe.
+                const cleanDate = dateString.split('T')[0];
+                const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' };
+                return new Date(cleanDate).toLocaleDateString('id-ID', options);
+            }
+
+            function getMonthIndex(monthName) {
+                return ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'].indexOf(monthName);
+            }
+        });
+    </script>
+</body>
+</html>
